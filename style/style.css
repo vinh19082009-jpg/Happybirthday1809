@@ -1,0 +1,663 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #e0c3fc, #d299c2, #ffecd2, #a8edea);
+  background-size: 600% 600%;
+  animation: gradientBG 14s ease infinite;
+  /* background-image: url('./bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: 'Pacifico', cursive;
+}
+
+/* Lớp chấm mờ nền */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.65) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Layout ── */
+.scene {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  position: relative;
+  width: clamp(200px, 55vw, 380px);
+  aspect-ratio: 1 / 1;
+  z-index: 9999;
+}
+
+/* ── Ảnh hộp quà ── */
+.gift-box,
+.box-body,
+.box-lid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  top: 0;
+  left: 0;
+}
+
+.box-body,
+.box-lid {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.open .gift-box  { opacity: 0; pointer-events: none; }
+.open .box-body  { opacity: 1; pointer-events: auto; }
+.open .box-lid   { opacity: 1; animation: liftLid 2s ease forwards; }
+
+@keyframes liftLid {
+  0%   { transform: translateY(0);      opacity: 1; }
+  80%  { transform: translateY(-130px); opacity: 1; }
+  100% { transform: translateY(-130px); opacity: 0; }
+}
+
+.drop .box-body {
+  animation: dropBox 2s ease forwards;
+}
+
+@keyframes dropBox {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(40vh); }
+}
+
+/* ── Nhịp tim + Glow hộp quà ── */
+.gift-box {
+  animation: heartbeat 3s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(255, 120, 170, 0.5))
+            drop-shadow(0 0 24px rgba(255, 80, 140, 0.25));
+  }
+  20% {
+    transform: scale(1.16);
+    filter: drop-shadow(0 0 28px rgba(255, 60, 130, 1))
+            drop-shadow(0 0 50px rgba(255, 100, 180, 0.55));
+  }
+  40% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(255, 120, 170, 0.5));
+  }
+  65% {
+    transform: scale(1.09);
+    filter: drop-shadow(0 0 20px rgba(255, 90, 155, 0.75));
+  }
+}
+
+/* ── Gợi ý click ── */
+.hint-text {
+  margin-top: 22px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(0.85rem, 2.2vw, 1.15rem);
+  font-weight: 600;
+  color: #c0306a;
+  letter-spacing: 0.07em;
+
+  /* Viền gradient pill */
+  padding: 9px 26px;
+  border-radius: 50px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.32)) padding-box,
+    linear-gradient(135deg, #ff6b9d, #c44dff, #ff9a9e, #c44dff, #ff6b9d) border-box;
+  background-size: auto, 300% 300%;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 22px rgba(192, 48, 106, 0.22),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 10px rgba(255, 255, 255, 0.55);
+
+  text-shadow:
+    0 0 14px rgba(192, 48, 106, 0.5),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+
+  /* Xuất hiện → lơ lửng → viền chạy màu */
+  opacity: 0;
+  animation:
+    hintAppear    0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards,
+    hintFloat     2.2s ease-in-out 1.3s infinite,
+    hintBorderRun 4s linear 1.3s infinite;
+
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+@keyframes hintAppear {
+  0%   { opacity: 0; transform: translateY(18px) scale(0.88); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
+}
+
+@keyframes hintFloat {
+  0%, 100% { transform: translateY(0);    opacity: 1;    }
+  50%       { transform: translateY(-8px); opacity: 0.72; }
+}
+
+@keyframes hintBorderRun {
+  0%   { background-position: auto, 0% 50%;   }
+  50%  { background-position: auto, 100% 50%; }
+  100% { background-position: auto, 0% 50%;   }
+}
+
+@keyframes hintDisappear {
+  0%   { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0);   }
+  100% { opacity: 0; transform: translateY(10px) scale(0.9); filter: blur(6px); }
+}
+
+/* ── Trái tim tỏa ra ── */
+.heart {
+  position: absolute;
+  font-size: clamp(14px, 2.2vw, 26px);
+  opacity: 0;
+  animation: fly 1.5s ease forwards;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes fly {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.7); }
+}
+
+/* ── Hạt pháo sáng ── */
+.spark {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #ff3cac;
+  border-radius: 50%;
+  opacity: 0;
+  animation: explode 1.2s ease-out forwards;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px #ff3cac);
+}
+
+@keyframes explode {
+  0%   { transform: translate(0, 0) scale(1);   opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) scale(0.4); opacity: 0; }
+}
+
+/* ── Ảnh bắn ra ── */
+.lava {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  object-fit: cover;
+}
+
+/* Ảnh cục bộ: viền màu sắc ngẫu nhiên */
+.lava-img {
+  border-radius: 10px;
+  border: 3.5px solid var(--border-color, #ff6b9d);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.28),
+    0 0 14px var(--border-color, #ff6b9d);
+}
+
+/* GIF: không viền, không khung */
+.lava-gif {
+  border-radius: 0;
+}
+
+/* ── Canvas pháo hoa ── */
+#fireworks {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── Lời chúc mừng ── */
+.message-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 640px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3em;
+  font-size: clamp(2rem, 5.8vw, 4.6rem);
+  font-family: 'Dancing Script', 'Pacifico', cursive;
+  font-weight: 700;
+  color: #d01460;
+  text-shadow:
+    0 0 14px rgba(208, 20, 96, 0.65),
+    0 0 30px rgba(208, 20, 96, 0.3),
+    0 3px 8px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 100;
+  line-height: 1.35;
+}
+
+.message-container span {
+  opacity: 0;
+  display: inline-block;
+  transition: opacity 0.6s ease;
+}
+
+@keyframes bounceUpDown {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-9px); }
+}
+
+/* ── Sao nổi nền (tạo bằng JS) ── */
+.bg-star {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  animation: starFloat var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+@keyframes starFloat {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--op);
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(1.5);
+    opacity: calc(var(--op) * 0.15);
+  }
+}
+
+/* ── Letter Modal ── */
+.letter-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 240, 245, 0.65); /* Tông hồng dịu mơ mộng */
+  backdrop-filter: blur(12px); /* Mờ mượt mà hơn */
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.45s ease forwards;
+}
+
+@keyframes overlayFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes overlayFadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+.letter-modal {
+  position: relative;
+  width: clamp(340px, 90vw, 440px); /* Co giãn linh hoạt, mặc định rộng hơn xíu */
+  height: clamp(450px, 80vh, 540px);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Giấy kem ấm, có họa tiết chấm bi hồng phấn dễ thương */
+  background-color: #fffafb;
+  background-image: radial-gradient(#ffe0e6 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  border-radius: 24px;
+
+  /* Viền kiểu Sticker 3 lớp cực kỳ ngọt ngào */
+  border: none;
+  box-shadow:
+    0 15px 45px rgba(255, 140, 180, 0.35),
+    0 0 0 8px #ffffff,
+    0 0 0 12px #ffc2d1,
+    inset 0 0 24px rgba(255, 194, 209, 0.25);
+
+  padding: 38px 24px 38px 32px;
+  animation: letterModalIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Pop nảy mượt mà */
+  transform-origin: 50% 110%;
+  
+  /* Ẩn thanh cuộn cho Firefox và IE/Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Thiết lập cho màn hình lớn: lá thư to hơn rõ rệt và chữ cũng to hơn */
+@media (min-width: 900px) {
+  .letter-modal {
+    width: 520px; /* To hẳn ra khi trên máy tính */
+    height: 620px;
+    padding: 46px 36px 46px 44px;
+  }
+  .letter-modal-body p {
+    font-size: clamp(1.22rem, 2.5vw, 1.4rem) !important; /* Chữ to hơn đọc sướng hơn */
+    line-height: 2.3 !important;
+  }
+  .letter-modal-body p:first-child {
+    font-size: clamp(1.38rem, 2.8vw, 1.6rem) !important;
+    margin-bottom: 16px !important;
+  }
+  .letter-modal-body p:last-child {
+    font-size: clamp(1.3rem, 2.6vw, 1.5rem) !important;
+    margin-top: 22px !important;
+  }
+}
+
+/* Ẩn thanh cuộn cho trình duyệt Webkit (Chrome, Safari, Edge mới) */
+.letter-modal::-webkit-scrollbar {
+  display: none;
+}
+
+
+
+@keyframes letterModalIn {
+  from { opacity: 0; transform: scale(0.8) translateY(40px) rotate(-2deg); }
+  to   { opacity: 1; transform: scale(1)   translateY(0)    rotate(0deg);  }
+}
+
+@keyframes letterModalOut {
+  from { opacity: 1; transform: scale(1)   translateY(0); }
+  to   { opacity: 0; transform: scale(0.85) translateY(24px) rotate(1deg); }
+}
+
+.letter-modal-body {
+  position: relative;
+  padding-left: 8px;
+  padding-top: 10px;
+}
+
+.letter-modal-body p {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.12rem, 2.5vw, 1.3rem);
+  font-weight: 700;
+  color: #5c2338;
+  line-height: 2.2;
+  margin-bottom: 4px;
+  opacity: 1;
+  min-height: 1lh;
+}
+
+.typing-cursor {
+  display: inline-block;
+  color: #ff477e;
+  font-weight: bold;
+  font-style: normal;
+  animation: cursorBlink 0.72s step-end infinite, cursorPulse 0.72s ease-in-out infinite alternate;
+  margin-left: 3px;
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes cursorPulse {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.2); }
+}
+
+.letter-modal-body p:first-child {
+  font-size: clamp(1.28rem, 2.8vw, 1.48rem);
+  color: #c9184a;
+  margin-bottom: 12px;
+  border-bottom: 2px dashed rgba(255, 182, 193, 0.4);
+  padding-bottom: 6px;
+  display: inline-block;
+}
+
+.letter-modal-body p:last-child {
+  font-size: clamp(1.2rem, 2.6vw, 1.38rem);
+  color: #c9184a;
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 15px;
+}
+
+@keyframes lineAppear {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Nút đóng tròn kẹo ngọt xoay tròn */
+.letter-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #ffccd5;
+  color: #ff4d6d;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+  box-shadow: 0 3px 8px rgba(255, 77, 109, 0.25);
+}
+
+.letter-modal-close:hover {
+  background: #ff4d6d;
+  color: #ffffff;
+  transform: rotate(180deg) scale(1.15);
+  box-shadow: 0 5px 12px rgba(255, 77, 109, 0.4);
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .container {
+    width: clamp(170px, 62vw, 270px);
+  }
+  .message-container {
+    font-size: clamp(1.6rem, 6.5vw, 3rem);
+  }
+  .hint-text {
+    font-size: 0.88rem;
+  }
+}
+
+/* ── Passcode Modal ── */
+.passcode-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 235, 242, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.4s ease forwards;
+}
+
+.passcode-modal {
+  position: relative;
+  width: clamp(300px, 85vw, 380px);
+  background: #fffafb;
+  background-image: radial-gradient(#ffe0e6 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+  border-radius: 24px;
+  box-shadow:
+    0 15px 45px rgba(255, 140, 180, 0.35),
+    0 0 0 8px #ffffff,
+    0 0 0 12px #ffc2d1,
+    inset 0 0 24px rgba(255, 194, 209, 0.25);
+  padding: 34px 24px 28px;
+  text-align: center;
+  animation: passcodeModalIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes passcodeModalIn {
+  from { opacity: 0; transform: scale(0.8) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.passcode-modal.shake {
+  animation: shakePasscode 0.45s ease-in-out;
+}
+
+@keyframes shakePasscode {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+.passcode-title {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #c9184a;
+  margin-bottom: 22px;
+  text-shadow: 0 1px 4px rgba(201, 24, 74, 0.2);
+}
+
+.passcode-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.passcode-box {
+  width: 52px;
+  height: 60px;
+  border-radius: 14px;
+  border: 2.5px solid #ffb3c1;
+  background: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.65rem;
+  font-weight: 600;
+  color: #a4133c;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(255, 179, 193, 0.3);
+  transition: all 0.25s ease;
+}
+
+.passcode-box:focus {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.25), 0 4px 16px rgba(255, 77, 109, 0.4);
+  transform: scale(1.06);
+}
+
+.passcode-box.error {
+  border-color: #ff0033;
+  background: #fff0f3;
+  color: #ff0033;
+}
+
+.passcode-hint {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ff4d6d;
+  letter-spacing: 0.03em;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.passcode-hint::before,
+.passcode-hint::after {
+  content: '🌸';
+  font-size: 0.85rem;
+}
+
+/* Nút đóng modal passcode */
+.passcode-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #ffccd5;
+  color: #ff4d6d;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.passcode-modal-close:hover {
+  background: #ff4d6d;
+  color: #ffffff;
+  transform: rotate(180deg) scale(1.1);
+}
+
+/* ── Hoa mờ trang trí nền thư ── */
+.letter-bg-flower {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  opacity: 0.18;
+  filter: blur(0.5px) drop-shadow(0 2px 8px rgba(255, 182, 193, 0.4));
+}
+.letter-bg-flower-1 {
+  top: 15px;
+  right: 15px;
+  width: clamp(100px, 24vw, 150px);
+  height: clamp(100px, 24vw, 150px);
+  transform: rotate(18deg);
+}
+.letter-bg-flower-2 {
+  bottom: 20px;
+  left: 15px;
+  width: clamp(110px, 26vw, 160px);
+  height: clamp(110px, 26vw, 160px);
+  transform: rotate(-22deg);
+}
+
+/* ── Hoa và Gấu rơi xung quanh lá thư ── */
+.falling-letter-item {
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+  z-index: 550;
+  object-fit: contain;
+}
+
